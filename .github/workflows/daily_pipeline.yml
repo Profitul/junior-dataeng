@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
       - run: python -m src.pipeline
       - run: pip install -r requirements.txt && pytest -q
@@ -22,4 +22,3 @@ jobs:
           git add -f data/pipeline.db
           git diff --cached --quiet || git commit -m "chore: daily data refresh"
           git push
-
