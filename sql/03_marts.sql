@@ -1,0 +1,5 @@
+DELETE FROM customer_spend_eur;
+WITH v AS(SELECT o.*,CASE WHEN o.currency='EUR' THEN o.qty*o.unit_price ELSE o.qty*o.unit_price*f.rate END amount_eur FROM orders_clean o LEFT JOIN fx_rates f ON f.requested_date=o.fx_reference_date AND f.base_currency=o.currency AND f.quote_currency='EUR' WHERE o.status='completed') INSERT INTO customer_spend_eur SELECT customer_id,min(customer_email),round(sum(amount_eur),2),count(amount_eur),datetime('now') FROM v WHERE amount_eur IS NOT NULL GROUP BY customer_id;
+DELETE FROM country_category_revenue;
+WITH r AS(SELECT o.country,sum(CASE WHEN o.currency='EUR' THEN o.qty*o.unit_price ELSE o.qty*o.unit_price*f.rate END) revenue FROM orders_clean o LEFT JOIN fx_rates f ON f.requested_date=o.fx_reference_date AND f.base_currency=o.currency AND f.quote_currency='EUR' WHERE o.status='completed' AND o.category IN('Books','Electronics') GROUP BY o.country),e AS(SELECT country,revenue,rank() OVER(ORDER BY revenue DESC) ranking FROM r WHERE revenue>40000) INSERT INTO country_category_revenue SELECT ranking,country,round(revenue,2),datetime('now') FROM e ORDER BY ranking;
+

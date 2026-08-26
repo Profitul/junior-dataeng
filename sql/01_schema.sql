@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS pipeline_runs(run_id INTEGER PRIMARY KEY,started_at TEXT NOT NULL,finished_at TEXT,status TEXT NOT NULL,raw_rows INTEGER,clean_rows INTEGER,fx_rates_loaded INTEGER,error_message TEXT);
+CREATE TABLE IF NOT EXISTS orders_raw(raw_id INTEGER PRIMARY KEY,row_hash TEXT NOT NULL,ingested_at TEXT NOT NULL,order_id TEXT,customer_id INTEGER,customer_email TEXT,order_ts TEXT,status TEXT,channel TEXT,sku TEXT,product_name TEXT,category TEXT,qty INTEGER,unit_price REAL,currency TEXT,country TEXT,fx_reference_date TEXT,raw_json TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS orders_clean(order_line_key TEXT PRIMARY KEY,order_id TEXT NOT NULL,customer_id INTEGER NOT NULL,customer_email TEXT NOT NULL,order_ts TEXT NOT NULL,status TEXT NOT NULL,channel TEXT NOT NULL,sku TEXT NOT NULL,product_name TEXT NOT NULL,category TEXT NOT NULL,qty INTEGER NOT NULL CHECK(qty>0),unit_price REAL NOT NULL CHECK(unit_price>0),currency TEXT NOT NULL,country TEXT NOT NULL,fx_reference_date TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS orders_rejected(raw_id INTEGER PRIMARY KEY,order_id TEXT,rejection_reason TEXT NOT NULL,raw_json TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS fx_rates(requested_date TEXT,rate_date TEXT,base_currency TEXT,quote_currency TEXT,rate REAL CHECK(rate>0),fetched_at TEXT,PRIMARY KEY(requested_date,base_currency,quote_currency));
+CREATE TABLE IF NOT EXISTS customer_spend_eur(customer_id INTEGER PRIMARY KEY,customer_email TEXT,total_spend_eur REAL,order_lines INTEGER,refreshed_at TEXT);
+CREATE TABLE IF NOT EXISTS country_category_revenue(revenue_rank INTEGER PRIMARY KEY,country TEXT UNIQUE,total_revenue_eur REAL,refreshed_at TEXT);
+CREATE TABLE IF NOT EXISTS data_quality_metrics(run_id INTEGER,metric_name TEXT,metric_value INTEGER,PRIMARY KEY(run_id,metric_name),FOREIGN KEY(run_id) REFERENCES pipeline_runs(run_id));
+

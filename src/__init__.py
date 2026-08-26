@@ -1,0 +1,2 @@
+"""Junior data engineer challenge."""
+
